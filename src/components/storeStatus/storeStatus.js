@@ -5,17 +5,14 @@ import axios from "axios"
 
 const storeHours = {
   0: {
-    // isOpen: false,
-    // openMessage: "",
-    // closedMessage: "Closed Today"
-    isOpen: true,
-    timeOpen: ["11.00", "16.30", "22.00"],
-    timeClosed: ["14.30", "21.00", "23.59"],
+    isOpen: false,
+    openMessage: "",
+    closedMessage: "Closed Today"
   },
   1: {
     isOpen: true,
-    timeOpen: [11, 16.30],
-    timeClosed: [14.30, 21],
+    timeOpen: ["11.00", "16.30"],
+    timeClosed: ["14.30", "21.00"],
     closedMessage: "11:00AM - 2:30PM, 4:00PM - 9:00PM"
   },
   2: {
@@ -82,8 +79,8 @@ const StoreStatus = () => {
   };
 
   const handleOpenCloseStatus = (today, hour, minute) =>{
-    // const currentTime = `${hour}.${minute}`;
-    const currentTime = 17;
+    const currentTime = `${hour}.${minute}`;
+    // const currentTime = 17;
     const timeOpen = today.timeOpen;
     const timeClosed = today.timeClosed;
 
