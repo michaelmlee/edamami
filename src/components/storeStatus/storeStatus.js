@@ -47,7 +47,6 @@ const storeHours = {
   },
 }
 
-
 const StoreStatus = () => {
   const [ statusColor, setStatusColor ] = useState ();
   const [ storeStatus , setStoreStatus ] = useState ();
@@ -87,87 +86,75 @@ const StoreStatus = () => {
 
   const handleOpenCloseStatus = (today, hour, minute) =>{
     // const currentTime = `${hour}.${minute}`;
-    const currentTime = 21.19
+    const currentTime = 10.19
     const timeOpen = today.timeOpen;
     const timeClosed = today.timeClosed;
-  
 
     if(today.isOpen){
       for(let i = 0; i < timeOpen.length; i++){
-        console.log(i);
-        console.log(currentTime);  
-        console.log(timeOpen[i]);
-        console.log(timeClosed[i]);
+        // open
         if(currentTime > timeOpen[i] && currentTime < timeClosed[i]){
-          console.log("I am open");
           handleOpen();
-          handleHelperMessage(2, currentTime, today, timeClosed[i]);
+          handleHelperMessage("Open", currentTime, today, timeClosed[i]);
           break;
         } else if(!(i+1 < timeOpen.length)){
-          console.log(i);
+          // not open yet
           if(currentTime < timeOpen[0]){
-            console.log("Not open yet");
             handleClosed();
-            handleHelperMessage(3, currentTime, today, timeOpen[0]);
+            handleHelperMessage("Closed until", currentTime, today, timeOpen[0]);
             break;
+            // closed for the day
           } else if(currentTime > timeClosed[timeClosed.length-1]){
-            console.log("closed for the day");
-            console.log(timeClosed[i]);
             handleClosed();
-            handleHelperMessage(1, currentTime, today, timeClosed[i]);
+            handleHelperMessage("Closed", currentTime, today, timeClosed[i]);
             break;
+            // closed until...
           } else {
-            console.log("closed until");
             handleClosed();
-            handleHelperMessage(3, currentTime, today, timeOpen[i]);
+            handleHelperMessage("Closed until", currentTime, today, timeOpen[i]);
             break;
           }
         }
       }
+      // closed
     } else {
-      handleClosed();
-      handleHelperMessage(1, currentTime, today, "")
+      handleClosed("Closed Today");
+      handleHelperMessage("Closed", currentTime, today, "")
     }
   };
 
-  // TODO: rename closeTime to something better
-  const handleHelperMessage = (status, currentTime, today, closeTime) => {
-
-    console.log(closeTime);
+  const handleHelperMessage = (status, currentTime, today, storeTimeHelper) => {
 
     // TODO: make this into its own method
-    const hour = closeTime.toString().split(".")[0];
-    const minute = closeTime.toString().split(".")[1];
+    const hour = storeTimeHelper.toString().split(".")[0];
+    const minute = storeTimeHelper.toString().split(".")[1];
 
     console.log(hour);
     console.log(minute);
-  
-    const minute2 = currentTime.toString().split(".")[1];
-    // TODO: clean this up
-    const diff = closeTime - currentTime;
-    const difference = minute - minute2;
+    
+    const [isChangingSoon, timeDifference] = handleChangingSoon(storeTimeHelper, currentTime);
+
     const hour12 = hour > 11 ? hour - 12 : hour;
     console.log(hour12);
 
     const ampm = hour > 11 ? "PM" : "AM";
+
     switch(status){
-      case 1: 
+      case "Closed": 
         setHelperStatus(today.closedMessage);
         break;
-      case 2: {
-        if(diff < 1){
+      case "Open": {
+        if(isChangingSoon){
           handleClosed(true);
-          setHelperStatus(`in ${difference} minutes`);
+          setHelperStatus(`in ${timeDifference} minutes`);
         } else
           setHelperStatus(`until ${hour12}:${minute}${ampm}`);
         break;
       }
-      case 3: {
-        // TODO: Clean this up
-        if((closeTime - currentTime) < 1){
-          const timeLeft = (difference > 0.6) ? Math.floor(difference * 60) : Math.floor(difference * 100);
+      case "Closed until": {
+        if(isChangingSoon){
           handleOpen(true);
-          setHelperStatus(`in ${timeLeft} minutes`);
+          setHelperStatus(`in ${timeDifference} minutes`);
         } else{
           setHelperStatus(`Opens at ${hour12}:${minute}${ampm}`);
         }
@@ -176,20 +163,28 @@ const StoreStatus = () => {
     }
   };
 
+  const handleChangingSoon = (time1, time2) => {
+    const isChangingSoon = time1 - time2 < 1;
+    const timeDifference = 
+    Math.floor(time1) === Math.floor(time2) ? 
+    Math.round((time1-time2)*100) :
+    Math.round(((time1-time2)-0.4) * 100);
+
+    return [isChangingSoon, timeDifference];
+  };
+
   const setStatus = (currentTime) => {
     const dayTime = new Date(currentTime);
     const day = dayTime.getDay();
     const hour = dayTime.getHours();
     const minute = dayTime.getMinutes();
     
-    if(minute < 10){
+    if(minute < 10)
       handleOpenCloseStatus(storeHours[day], hour, `0${minute}`);
-    } else 
+    else 
       handleOpenCloseStatus(storeHours[day], hour, minute);
   };
-  // const statusColor = "red";
-  // const openCloseStatus = "Closed";
-  // const helperStatus = "11:00AM - 2:30PM, 4:00PM - 9:00PM";
+
   return (
     <div style={{
       position: "absolute",
