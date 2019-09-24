@@ -1,51 +1,7 @@
-// import { Link } from "gatsby"
-// import PropTypes from "prop-types"
 import React , { useState , useEffect } from "react"
 import axios from "axios"
 
-const storeHours = {
-  0: {
-    isOpen: false,
-    openMessage: "",
-    closedMessage: "Closed Today"
-  },
-  1: {
-    isOpen: true,
-    timeOpen: ["11.00", "16.30"],
-    timeClosed: ["14.30", "21.00"],
-    closedMessage: "11:00AM - 2:30PM, 4:00PM - 9:00PM"
-  },
-  2: {
-    isOpen: true,
-    timeOpen: ["11.00", "16.30"],
-    timeClosed: ["14.30", "21.00"],
-    closedMessage: "11:00AM - 2:30PM, 4:00PM - 9:00PM"
-  },
-  3: {
-    isOpen: true,
-    timeOpen: ["11.00", "16.30"],
-    timeClosed: ["14.30", "21.00"],
-    closedMessage: "11:00AM - 2:30PM, 4:00PM - 9:00PM"
-  },
-  4: {
-    isOpen: true,
-    timeOpen: ["11.00", "16.30"],
-    timeClosed: ["14.30", "21.00"],
-    closedMessage: "11:00AM - 2:30PM, 4:00PM - 9:00PM"
-  },
-  5: {
-    isOpen: true,
-    timeOpen: ["11.00", "16.30"],
-    timeClosed: ["14.30", "21.00"],
-    closedMessage: "11:00AM - 2:30PM, 4:00PM - 9:30PM"
-  },
-  6: {
-    isOpen: true,
-    timeOpen: ["11.30", "16.30"],
-    timeClosed: ["14.30", "21.30"],
-    closedMessage: "11:30AM - 2:30PM, 4:00PM - 9:30PM"
-  },
-}
+import storeHours from "./storeHours"
 
 const StoreStatus = () => {
   const [ statusColor, setStatusColor ] = useState ();
@@ -85,8 +41,8 @@ const StoreStatus = () => {
   };
 
   const handleOpenCloseStatus = (today, hour, minute) =>{
-    // const currentTime = `${hour}.${minute}`;
-    const currentTime = 10.19
+    const currentTime = `${hour}.${minute}`;
+    // const currentTime = 10.19
     const timeOpen = today.timeOpen;
     const timeClosed = today.timeClosed;
 
@@ -101,7 +57,7 @@ const StoreStatus = () => {
           // not open yet
           if(currentTime < timeOpen[0]){
             handleClosed();
-            handleHelperMessage("Closed until", currentTime, today, timeOpen[0]);
+            handleHelperMessage("Not open yet", currentTime, today, timeOpen[0]);
             break;
             // closed for the day
           } else if(currentTime > timeClosed[timeClosed.length-1]){
@@ -160,6 +116,19 @@ const StoreStatus = () => {
         }
         break;
       }
+      case "Not open yet": {
+        if(isChangingSoon){
+          handleOpen(true);
+          setHelperStatus(`in ${timeDifference} minutes`);
+        } else{
+          setHelperStatus(today.closedMessage);
+        }
+        break;
+      }
+      default: {
+        setHelperStatus(today.closedMessage);
+        break;
+      }
     }
   };
 
@@ -178,7 +147,7 @@ const StoreStatus = () => {
     const day = dayTime.getDay();
     const hour = dayTime.getHours();
     const minute = dayTime.getMinutes();
-    
+
     if(minute < 10)
       handleOpenCloseStatus(storeHours[day], hour, `0${minute}`);
     else 
@@ -198,6 +167,5 @@ const StoreStatus = () => {
   </div>
 )
 };
-
 
 export default StoreStatus
